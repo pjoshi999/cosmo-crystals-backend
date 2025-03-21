@@ -12,18 +12,18 @@ import authRoutes from "./routes/authRoutes";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { createServer } from "http";
+// import { createServer } from "http";
+
+dotenv.config();
 
 const PORT = parseInt(process.env.PORT as string, 10) || 10000;
 
 const app = express();
-const server = createServer(app);
+// const server = createServer(app);
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-dotenv.config();
+// server.listen(PORT, "0.0.0.0", () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
 
 app.use(express.json());
 app.use(helmet());
@@ -56,7 +56,7 @@ app.get("/", (_req, res) => {
 
 // app.use(errorMiddleware);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
 
