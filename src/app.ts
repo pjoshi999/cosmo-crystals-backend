@@ -13,13 +13,12 @@ import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 
 dotenv.config();
 
-// Middlewares
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
