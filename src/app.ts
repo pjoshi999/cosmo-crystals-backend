@@ -12,10 +12,13 @@ import authRoutes from "./routes/authRoutes";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import { createServer } from "http";
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 9000;
 
 const app = express();
+const server = createServer(app);
+
 
 dotenv.config();
 
