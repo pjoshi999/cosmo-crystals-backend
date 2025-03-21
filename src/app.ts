@@ -14,7 +14,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 
-const PORT = parseInt(process.env.PORT as string, 10) || 9000;
+const PORT = parseInt(process.env.PORT as string, 10) || 10000;
 
 const app = express();
 const server = createServer(app);
