@@ -14,11 +14,14 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 
-const PORT = process.env.PORT || 9000;
+const PORT = parseInt(process.env.PORT as string, 10) || 9000;
 
 const app = express();
 const server = createServer(app);
 
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 dotenv.config();
 
