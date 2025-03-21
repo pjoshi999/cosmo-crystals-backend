@@ -6,11 +6,14 @@ export const createReview = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { rating, comment, userId, productId } = req.body;
+    const userId = req.user?.id;
 
     if (!userId) {
-      res.status(400).json({ error: "User ID is required" });
+      res.status(401).json({ error: "Unauthorized" });
+      return;
     }
+
+    const { rating, comment, productId } = req.body;
 
     if (rating < 1 || rating > 5) {
       res.status(400).json({ error: "Rating must be between 1 and 5" });

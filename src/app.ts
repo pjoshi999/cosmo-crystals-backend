@@ -2,15 +2,18 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
-// import reviewRoutes from "./routes/reviewRoutes";
+import reviewRoutes from "./routes/reviewRoutes";
 import productRoutes from "./routes/productRoutes";
+import productImageRoutes from "./routes/productImageRoutes";
+import cartRoutes from "./routes/cartRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
+import subCategoryRoutes from "./routes/subCategoryRoutes";
 import authRoutes from "./routes/authRoutes";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 
@@ -36,8 +39,11 @@ app.use("/assets", express.static("assets"));
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/products/images", productImageRoutes);
 app.use("/api/v1/category", categoryRoutes);
-// app.use("/api/v1/reviews", reviewRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
+app.use("/api/v1/cart", cartRoutes);
+app.use("/api/v1/subcategory", subCategoryRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "✅ Server is running" });

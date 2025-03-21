@@ -36,10 +36,18 @@ export const registerUserService = async (
 
 export const loginUserService = async (email: string, password: string) => {
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new Error("User not found!");
+  if (!user) {
+    const error = new Error("User not found!") as any;
+    error.status = 404;
+    throw error;
+  }
 
   const isPasswordValid = await verifyPassword(user.password, password);
-  if (!isPasswordValid) throw new Error("Invalid credentials");
+  if (!isPasswordValid) {
+    const error = new Error("Invalid credentials") as any;
+    error.status = 404;
+    throw error;
+  }
 
   console.log("user", user);
 
@@ -49,8 +57,13 @@ export const loginUserService = async (email: string, password: string) => {
   return { user, accessToken, refreshToken };
 };
 
-export const logoutService = async (userId: string) => {
-  await prisma.session.deleteMany({ where: { userId } });
+export const logoutService = async (userId: string, refreshToken?: string) => {
+  if (refreshToken) {
+    await prisma.session.deleteMany({ where: { userId, token: refreshToken } });
+  } else {
+    await prisma.session.deleteMany({ where: { userId } });
+  }
+
   return { message: "Logged out successfully." };
 };
 

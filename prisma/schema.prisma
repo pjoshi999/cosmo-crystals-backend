@@ -29,7 +29,7 @@ model User {
   reviews            Review[]
   cart               CartItem[]
   sessions           Session[]
-  WishList           WishListItem[]
+  wishList           WishListItem[]
   PasswordResetToken PasswordResetToken?
 
   @@map("users")
@@ -38,7 +38,7 @@ model User {
 model Session {
   id        String   @id @default(uuid()) @db.Uuid
   token     String   @unique
-  userId    String   @unique @db.Uuid
+  userId    String   @db.Uuid
   expiresAt DateTime
   createdAt DateTime @default(now())
 
@@ -71,7 +71,7 @@ model Address {
   isDefault  Boolean @default(false)
   phone      String
 
-  User   User    @relation(fields: [userId], references: [id])
+  user   User    @relation(fields: [userId], references: [id])
   orders Order[]
 
   @@map("addresses")
@@ -86,37 +86,55 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products Product[]
+  subCategory SubCategory[]
+  products    Product[]
 
   @@map("categories")
 }
 
 model Product {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String
-  description String
-  price       Float
-  salePrice   Float
-  stock       Int      @default(0)
-  weight      Float? //in grams
-  length      Float? // In cm
-  width       Float? // In cm
-  height      Float? // In cm
-  categoryId  String   @db.Uuid
-  subcategory String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String
+  description   String
+  price         Float
+  salePrice     Float
+  stock         Int      @default(0)
+  // weight        Float? //in grams
+  // length        Float? // In cm
+  // width         Float? // In cm
+  // height        Float? // In cm
+  categoryId    String   @db.Uuid
+  subCategoryId String?  @db.Uuid
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  category   Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subCategory SubCategory? @relation(fields: [subCategoryId], references: [id])
+
   images     ProductImage[]
   reviews    Review[]
   orderItems OrderItem[]
   cartItems  CartItem[]
   attributes ProductAttribute[]
-  WishList   WishListItem[]
+  wishList   WishListItem[]
 
   @@index([categoryId])
+  @@index([subCategoryId])
   @@map("products")
+}
+
+model SubCategory {
+  id         String   @id @default(uuid()) @db.Uuid
+  categoryId String   @db.Uuid
+  name       String   @unique
+  slug       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@map("subcategories")
 }
 
 model ProductImage {
@@ -128,7 +146,9 @@ model ProductImage {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CartItem   CartItem? @relation(fields: [cartItemId], references: [id])
+  cartItemId String?   @db.Uuid
 
   @@map("product_images")
 }
@@ -136,7 +156,7 @@ model ProductImage {
 model ProductAttribute {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
-  value     String
+  value     Json
   productId String   @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -223,8 +243,9 @@ model CartItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  images  ProductImage[]
 
   @@unique([userId, productId])
   @@map("cart_items")

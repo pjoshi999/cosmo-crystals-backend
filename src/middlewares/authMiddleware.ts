@@ -10,7 +10,7 @@ export const authMiddleware = async (
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
-      res.status(401).json({ message: "Unauthorized. Token missing." });
+      res.status(401).json({ error: "Unauthorized. Token missing." });
       return;
     }
 
@@ -19,7 +19,7 @@ export const authMiddleware = async (
     console.log("decoded user", decoded);
 
     if (typeof decoded === "string" || !decoded.id) {
-      res.status(401).json({ message: "Unauthorized. Invalid token." });
+      res.status(401).json({ error: "Unauthorized. Invalid token." });
       return;
     }
 
@@ -29,14 +29,14 @@ export const authMiddleware = async (
     });
 
     if (!user) {
-      res.status(401).json({ message: "Unauthorized. User not found." });
+      res.status(401).json({ error: "Unauthorized. User not found." });
       return;
     }
 
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid or expired token." });
+    res.status(401).json({ error: "Invalid or expired token." });
   }
 };
 
@@ -46,7 +46,7 @@ export const adminOnly = (
   next: NextFunction
 ): void => {
   if (req.user?.role !== "ADMIN") {
-    res.status(403).json({ message: "Access denied. Admins only." });
+    res.status(403).json({ error: "Access denied. Admins only." });
     return;
   }
   next();

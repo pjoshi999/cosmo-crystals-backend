@@ -16,15 +16,17 @@ export const generateRefreshToken = async (userId: string) => {
   console.log("userId", userId);
 
   const refreshToken = jwt.sign({ userId }, REFRESH_SECRET, {
-    expiresIn: "7d",
+    expiresIn: "15d",
   });
 
   console.log("refresh", refreshToken);
 
-  await prisma.session.upsert({
-    where: { userId },
-    update: { token: refreshToken, expiresAt: addDays(new Date(), 7) },
-    create: { userId, token: refreshToken, expiresAt: addDays(new Date(), 7) },
+  await prisma.session.create({
+    data: {
+      userId,
+      token: refreshToken,
+      expiresAt: addDays(new Date(), 15),
+    },
   });
 
   return refreshToken;
@@ -43,18 +45,23 @@ export const verifyRefreshToken = async (refreshToken: string) => {
 
     console.log("decoded", decoded);
     console.log("refresh token", refreshToken);
-    const storedToken = await prisma.session.findUnique({
-      where: { userId: decoded.userId },
-    });
-    console.log(storedToken);
 
-    if (!storedToken || storedToken.token !== refreshToken) {
-      console.log(typeof storedToken?.token, typeof refreshToken);
-      throw new Error("Invalid refresh token");
+    const storedSession = await prisma.session.findFirst({
+      where: {
+        userId: decoded.userId,
+        token: refreshToken,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    console.log(storedSession);
+
+    if (!storedSession) {
+      throw new Error("Invalid or expired refresh token");
     }
 
     return decoded;
-  } catch (error) {
-    throw new Error("Invalid refresh token");
+  } catch (error: any) {
+    throw new Error(`Invalid refresh token: ${error.message}`);
   }
 };

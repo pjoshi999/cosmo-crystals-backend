@@ -12,7 +12,7 @@ export const createReview = async (data: {
 export const getAllReviewsForProduct = async (productId: string) => {
   return await prisma.review.findMany({
     where: { productId },
-    include: { User: { select: { id: true, name: true } } },
+    include: { user: { select: { id: true, name: true } } },
   });
 };
 

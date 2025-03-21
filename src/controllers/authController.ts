@@ -54,6 +54,16 @@ export const registerUser = async (
 // @access  Public
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
+    if (!req.body.email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+
+    if (!req.body.password) {
+      res.status(400).json({ error: "Password is required" });
+      return;
+    }
+
     const parsedData = loginSchema.safeParse(req.body);
 
     if (!parsedData.success) {
@@ -86,7 +96,7 @@ export const refreshAccessToken = async (
   try {
     const { refreshToken } = req.body;
     if (!refreshToken) {
-      res.status(401).json({ message: "Refresh token is required" });
+      res.status(401).json({ error: "Refresh token is required" });
       return;
     }
 
@@ -95,7 +105,7 @@ export const refreshAccessToken = async (
     console.log("check", decoded);
 
     if (!decoded || typeof decoded !== "object" || !decoded.userId) {
-      res.status(401).json({ message: "Invalid refresh token" });
+      res.status(401).json({ error: "Invalid refresh token" });
       return;
     }
 
@@ -103,12 +113,17 @@ export const refreshAccessToken = async (
       where: { id: decoded.userId },
     });
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(404).json({ error: "User not found" });
       return;
     }
 
     const newAccessToken = generateAccessToken(user.id);
     const newRefreshToken = await generateRefreshToken(user.id);
+
+    // Invalidate the old refresh token
+    await prisma.session.deleteMany({
+      where: { userId: user.id, token: refreshToken },
+    });
 
     res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error: any) {
@@ -125,9 +140,14 @@ export const forgotPassword = async (
 ): Promise<void> => {
   try {
     const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(404).json({ error: "User not found" });
       return;
     }
 
@@ -153,12 +173,21 @@ export const resetPassword = async (
   try {
     const { resetToken, newPassword } = req.body;
 
+    if (!resetToken) {
+      res.status(400).json({ error: "Reset Token is required" });
+      return;
+    }
+    if (!newPassword) {
+      res.status(400).json({ error: "Password is required" });
+      return;
+    }
+
     const resetRecord = await prisma.passwordResetToken.findUnique({
       where: { token: resetToken },
     });
 
     if (!resetToken || !resetRecord || resetRecord.expiresAt < new Date()) {
-      res.status(400).json({ message: "Invalid or expired token" });
+      res.status(400).json({ error: "Invalid or expired token" });
       return;
     }
 
@@ -191,11 +220,11 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ error: "Unauthorized" });
       return;
     }
 
-    await logoutService(userId);
+    await logoutService(userId, req.body?.refreshToken);
 
     res.status(200).json({ message: "Logged out successfully." });
     return;

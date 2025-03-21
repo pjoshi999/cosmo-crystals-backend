@@ -3,7 +3,10 @@ import prisma from "../config/database";
 import { productSchema } from "../validators/productValidator";
 
 export const createProductService = async (
-  data: Omit<Product, "id" | "createdAt" | "updatedAt">
+  data: Omit<Product, "id" | "createdAt" | "updatedAt"> & {
+    images: { url: string; alt?: string; isMain?: boolean }[];
+    attributes: { name: string; value: string }[];
+  }
 ) => {
   const validatedData = productSchema.safeParse(data);
 
@@ -18,7 +21,23 @@ export const createProductService = async (
   });
 
   if (!category) {
-    throw new Error("Category not found");
+    const error = new Error("Category not found") as any;
+    error.status = 404;
+    throw error;
+  }
+
+  const subCategory = await prisma.subCategory.findUnique({
+    where: { id: validatedData.data.subCategoryId },
+  });
+
+  if (!subCategory) {
+    const error = new Error("Subcategory not found") as any;
+    error.status = 404;
+    throw error;
+  }
+
+  if (subCategory?.categoryId !== validatedData.data.categoryId) {
+    throw new Error("Subcategory does not belong to the given category");
   }
 
   const product = await prisma.product.create({
@@ -28,12 +47,12 @@ export const createProductService = async (
       price: validatedData.data.price,
       salePrice: validatedData.data.salePrice,
       stock: validatedData.data.stock,
-      weight: validatedData.data.weight,
-      length: validatedData.data.length,
-      width: validatedData.data.width,
-      height: validatedData.data.height,
+      // weight: validatedData.data.weight,
+      // length: validatedData.data.length,
+      // width: validatedData.data.width,
+      // height: validatedData.data.height,
       categoryId: validatedData.data.categoryId,
-      subcategory: validatedData.data.subcategory,
+      subCategoryId: validatedData.data.subCategoryId,
 
       images: {
         create: validatedData.data.images.map((image) => ({
@@ -41,8 +60,19 @@ export const createProductService = async (
           alt: image.alt ?? "",
         })),
       },
+      attributes: {
+        create: validatedData.data.attributes.map((attr) => ({
+          name: attr.name,
+          value: attr.value,
+        })),
+      },
     },
-    include: { images: true },
+    include: {
+      images: true,
+      attributes: true,
+      category: true,
+      subCategory: true,
+    },
   });
 
   return product;
@@ -94,7 +124,28 @@ export const getProductsService = async (
   const products = await prisma.product.findMany({
     where: filters,
     include: {
-      images: true, // Include product images in response
+      images: true,
+      attributes: {
+        select: {
+          name: true,
+          value: true,
+        },
+      },
+      category: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          image: true,
+        },
+      },
+      subCategory: {
+        select: {
+          id: true,
+          name: true,
+          category: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc", // Show latest products first
@@ -112,8 +163,10 @@ export const getProductByIdService = async (id: string) => {
   const product = await prisma.product.findUnique({
     where: { id },
     include: {
-      category: true,
       images: true,
+      attributes: true,
+      category: true,
+      subCategory: true,
     },
   });
 
@@ -139,7 +192,32 @@ export const updateProductService = async (
     throw error;
   }
 
-  return await prisma.product.update({ where: { id }, data });
+  return await prisma.product.update({
+    where: { id },
+    data: {
+      ...validatedData.data,
+      categoryId: validatedData.data.categoryId,
+      subCategoryId: validatedData.data.subCategoryId,
+      images: validatedData.data.images
+        ? {
+            deleteMany: {},
+            create: validatedData.data.images.map((image) => ({
+              url: image.url,
+              alt: image.alt ?? "",
+            })),
+          }
+        : undefined,
+      attributes: validatedData.data.attributes
+        ? {
+            deleteMany: {},
+            create: validatedData.data.attributes.map((attr) => ({
+              name: attr.name,
+              value: attr.value,
+            })),
+          }
+        : undefined,
+    },
+  });
 };
 
 export const deleteProductService = async (id: string) => {
@@ -147,7 +225,7 @@ export const deleteProductService = async (id: string) => {
 
   if (!product) {
     const error = new Error("Product not found") as any;
-    error.status = 404; // Set HTTP status for better error handling
+    error.status = 404;
     throw error;
   }
 

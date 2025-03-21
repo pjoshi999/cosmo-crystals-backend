@@ -28,7 +28,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "sessions" (
     "id" UUID NOT NULL,
-    "token" UUID NOT NULL,
+    "token" TEXT NOT NULL,
     "userId" UUID NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -40,7 +40,7 @@ CREATE TABLE "sessions" (
 CREATE TABLE "password_reset_token" (
     "id" UUID NOT NULL,
     "userId" UUID NOT NULL,
-    "token" UUID NOT NULL,
+    "token" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -66,7 +66,7 @@ CREATE TABLE "addresses" (
 CREATE TABLE "categories" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
+    "slug" TEXT,
     "description" TEXT,
     "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -88,11 +88,23 @@ CREATE TABLE "products" (
     "width" DOUBLE PRECISION,
     "height" DOUBLE PRECISION,
     "categoryId" UUID NOT NULL,
-    "subcategory" TEXT,
+    "subCategoryId" UUID,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "subcategories" (
+    "id" UUID NOT NULL,
+    "categoryId" UUID NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subcategories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -244,6 +256,12 @@ CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 CREATE INDEX "products_categoryId_idx" ON "products"("categoryId");
 
 -- CreateIndex
+CREATE INDEX "products_subCategoryId_idx" ON "products"("subCategoryId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "subcategories_name_key" ON "subcategories"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "product_attributes_productId_name_key" ON "product_attributes"("productId", "name");
 
 -- CreateIndex
@@ -269,6 +287,12 @@ ALTER TABLE "addresses" ADD CONSTRAINT "addresses_userId_fkey" FOREIGN KEY ("use
 
 -- AddForeignKey
 ALTER TABLE "products" ADD CONSTRAINT "products_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "products" ADD CONSTRAINT "products_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "subcategories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "subcategories" ADD CONSTRAINT "subcategories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "product_images" ADD CONSTRAINT "product_images_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;

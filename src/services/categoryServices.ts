@@ -50,6 +50,7 @@ export const getCategoryService = async (
     skip,
     take: limit,
     orderBy: { createdAt: "desc" },
+    include: { subCategory: true },
   });
 
   const totalCategories = await prisma.category.count();
@@ -65,7 +66,9 @@ export const getCategoryByIdService = async (id: string) => {
   const category = await prisma.category.findUnique({ where: { id } });
 
   if (!category) {
-    throw new Error("Category not found");
+    const error = new Error("Category not found") as any;
+    error.status = 404;
+    throw error;
   }
 
   return category;
@@ -99,7 +102,9 @@ export const deleteCategoryService = async (id: string) => {
   const category = await prisma.category.findUnique({ where: { id } });
 
   if (!category) {
-    throw new Error("Category not found");
+    const error = new Error("Category not found") as any;
+    error.status = 404;
+    throw error;
   }
 
   await prisma.category.delete({ where: { id } });

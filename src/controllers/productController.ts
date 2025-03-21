@@ -65,6 +65,8 @@ export const getAllProducts = async (
       search
     );
 
+    console.log(products, totalProducts);
+
     res.status(200).json({
       message: "Products fetched successfully",
       products,
@@ -120,7 +122,7 @@ export const updateProduct = async (
     return;
   } catch (error: any) {
     res.status(error.status || 400).json({
-      message: error.message || "Error deleting product",
+      message: error.message || "Error updating product",
     });
   }
 };
