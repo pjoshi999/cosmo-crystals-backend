@@ -16,7 +16,7 @@ import cookieParser from "cookie-parser";
 
 dotenv.config();
 
-const PORT = parseInt(process.env.PORT as string, 10) || 10000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 10000;
 
 const app = express();
 // const server = createServer(app);
@@ -28,7 +28,9 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cookieParser());
-app.use(morgan("dev"));
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "*", credentials: true }));
 app.use(
@@ -56,8 +58,15 @@ app.get("/", (_req, res) => {
 
 // app.use(errorMiddleware);
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  server.close(() => {
+    console.log("Process terminated");
+  });
 });
 
 export default app;

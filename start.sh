@@ -1,9 +1,9 @@
 #!/bin/bash
-# Increase Node.js heap memory limit
-export NODE_OPTIONS="--max-old-space-size=2048"
+# Set memory limits for Node.js
+export NODE_OPTIONS="--max-old-space-size=512"
 
-# Run database migrations if needed
-npx prisma migrate deploy
+# Generate Prisma client with minimal logging
+npx prisma generate --no-engine-logs
 
-# Start the application
-npm start
+# Start with production optimization flags
+NODE_ENV=production ts-node --transpile-only src/app.ts
