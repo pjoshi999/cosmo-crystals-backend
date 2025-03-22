@@ -9,21 +9,16 @@ import cartRoutes from "./routes/cartRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import subCategoryRoutes from "./routes/subCategoryRoutes";
 import authRoutes from "./routes/authRoutes";
+import profileRoutes from "./routes/profileRoutes";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-// import { createServer } from "http";
 
 dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 10000;
 
 const app = express();
-// const server = createServer(app);
-
-// server.listen(PORT, "0.0.0.0", () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
 
 app.use(express.json());
 app.use(helmet());
@@ -51,6 +46,7 @@ app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/subcategory", subCategoryRoutes);
+app.use("/api/v1/profile", profileRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "✅ Server is running" });

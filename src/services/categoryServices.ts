@@ -22,7 +22,7 @@ export const createCategoryService = async (data: {
   const category = await prisma.category.create({
     data: {
       name: validatedData.data.name,
-      description: validatedData.data.description ?? "",
+      description: validatedData.data.description,
       slug: slug ?? "",
       image: validatedData.data.image ?? "",
     },
