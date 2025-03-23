@@ -50,11 +50,10 @@ export const verifyRefreshToken = async (refreshToken: string) => {
       where: {
         userId: decoded.userId,
         token: refreshToken,
-        expiresAt: { gt: new Date() },
       },
     });
 
-    console.log(storedSession);
+    console.log("stored Session", storedSession);
 
     if (!storedSession) {
       throw new Error("Invalid or expired refresh token");
