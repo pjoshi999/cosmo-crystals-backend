@@ -18,7 +18,7 @@ export const generateRefreshToken = async (userId: string) => {
   const refreshToken = jwt.sign({ userId }, REFRESH_SECRET, {
     expiresIn: "15d",
   });
-
+ 
   console.log("refresh", refreshToken);
 
   await prisma.session.create({
