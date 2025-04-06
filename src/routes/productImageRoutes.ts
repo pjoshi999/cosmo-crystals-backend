@@ -4,11 +4,12 @@ import {
   deleteProductImage,
   updateProductImage,
 } from "../controllers/productImageController";
+import { adminOnly, authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.post("/create", createProductImage);
-router.patch("/:id", updateProductImage);
-router.delete("/:id", deleteProductImage);
+router.post("/create", authMiddleware, adminOnly, createProductImage);
+router.patch("/:id", authMiddleware, adminOnly, updateProductImage);
+router.delete("/:id", authMiddleware, adminOnly, deleteProductImage);
 
 export default router;

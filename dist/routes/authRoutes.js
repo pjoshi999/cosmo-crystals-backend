@@ -8,7 +8,6 @@ const validateRequest_1 = __importDefault(require("../middlewares/validateReques
 const authValidator_1 = require("../validators/authValidator");
 const authController_1 = require("../controllers/authController");
 const authMiddleware_1 = require("../middlewares/authMiddleware");
-// import { adminOnly, authMiddleware } from "../middlewares/authMiddleware";
 const router = express_1.default.Router();
 router.post("/signup", (0, validateRequest_1.default)(authValidator_1.signUpSchema), authController_1.registerUser);
 router.post("/login", (0, validateRequest_1.default)(authValidator_1.loginSchema), authController_1.loginUser);

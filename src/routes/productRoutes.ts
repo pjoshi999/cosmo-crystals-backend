@@ -6,13 +6,14 @@ import {
   getProductById,
   updateProduct,
 } from "../controllers/productController";
+import { adminOnly, authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
 router.get("/", getAllProducts);
-router.post("/", createProduct);
+router.post("/", authMiddleware, adminOnly, createProduct);
 router.get("/:id", getProductById);
-router.patch("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+router.patch("/:id", authMiddleware, adminOnly, updateProduct);
+router.delete("/:id", authMiddleware, adminOnly, deleteProduct);
 
 export default router;
