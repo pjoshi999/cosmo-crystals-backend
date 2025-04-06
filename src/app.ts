@@ -10,10 +10,10 @@ import categoryRoutes from "./routes/categoryRoutes";
 import subCategoryRoutes from "./routes/subCategoryRoutes";
 import authRoutes from "./routes/authRoutes";
 import profileRoutes from "./routes/profileRoutes";
+import userRoutes from "./routes/userRoutes";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { createHash } from "node:crypto";
 
 dotenv.config();
 
@@ -48,6 +48,7 @@ app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/subcategory", subCategoryRoutes);
 app.use("/api/v1/profile", profileRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "✅ Server is running" });
