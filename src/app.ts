@@ -13,6 +13,7 @@ import profileRoutes from "./routes/profileRoutes";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import { createHash } from "node:crypto";
 
 dotenv.config();
 

@@ -47,10 +47,6 @@ export const createProductService = async (
       price: validatedData.data.price,
       salePrice: validatedData.data.salePrice,
       stock: validatedData.data.stock,
-      // weight: validatedData.data.weight,
-      // length: validatedData.data.length,
-      // width: validatedData.data.width,
-      // height: validatedData.data.height,
       categoryId: validatedData.data.categoryId,
       subCategoryId: validatedData.data.subCategoryId,
 
@@ -175,7 +171,12 @@ export const getProductByIdService = async (id: string) => {
 
 export const updateProductService = async (
   id: string,
-  data: Partial<Product>
+  data: Partial<
+    Omit<Product, "id" | "createdAt" | "updatedAt"> & {
+      images?: { url: string; alt?: string; isMain?: boolean }[];
+      attributes?: { name: string; value: string }[];
+    }
+  >
 ) => {
   const validatedData = productSchema.partial().safeParse(data);
 
@@ -184,20 +185,59 @@ export const updateProductService = async (
     throw new Error(JSON.stringify(errors));
   }
 
-  const product = await prisma.product.findUnique({ where: { id } });
+  const existingProduct = await prisma.product.findUnique({ where: { id } });
 
-  if (!product) {
+  if (!existingProduct) {
     const error = new Error("Product not found") as any;
-    error.status = 404; // Set HTTP status for better error handling
+    error.status = 404;
     throw error;
+  }
+
+  const newCategoryId =
+    validatedData.data.categoryId ?? existingProduct.categoryId;
+  const newSubCategoryId =
+    validatedData.data.subCategoryId ?? existingProduct.subCategoryId;
+
+  // Validate new category exists
+  const category = await prisma.category.findUnique({
+    where: { id: newCategoryId },
+  });
+  if (!category) {
+    const error = new Error("Category not found") as any;
+    error.status = 404;
+    throw error;
+  }
+
+  // Validate subcategory if present
+  if (newSubCategoryId) {
+    const subCategory = await prisma.subCategory.findUnique({
+      where: { id: newSubCategoryId },
+    });
+    if (!subCategory) {
+      const error = new Error("Subcategory not found") as any;
+      error.status = 404;
+      throw error;
+    }
+
+    // Validate subCategory.categoryId matches expected categoryId
+    const expectedCategoryId =
+      validatedData.data.categoryId ?? existingProduct.categoryId;
+
+    if (subCategory.categoryId !== expectedCategoryId) {
+      const error = new Error(
+        "Subcategory does not belong to the given category"
+      ) as any;
+      error.status = 400;
+      throw error;
+    }
   }
 
   return await prisma.product.update({
     where: { id },
     data: {
       ...validatedData.data,
-      categoryId: validatedData.data.categoryId,
-      subCategoryId: validatedData.data.subCategoryId,
+      categoryId: newCategoryId,
+      subCategoryId: newSubCategoryId,
       images: validatedData.data.images
         ? {
             deleteMany: {},
@@ -216,6 +256,12 @@ export const updateProductService = async (
             })),
           }
         : undefined,
+    },
+    include: {
+      images: true,
+      attributes: true,
+      category: true,
+      subCategory: true,
     },
   });
 };
