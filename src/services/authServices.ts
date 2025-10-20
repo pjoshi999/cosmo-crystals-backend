@@ -42,6 +42,15 @@ export const loginUserService = async (email: string, password: string) => {
     throw error;
   }
 
+  // Check if user has a password (not an OAuth-only user)
+  if (!user.password) {
+    const error = new Error(
+      "This account was created with Google. Please login with Google."
+    ) as any;
+    error.status = 400;
+    throw error;
+  }
+
   const isPasswordValid = await verifyPassword(user.password, password);
   if (!isPasswordValid) {
     const error = new Error("Invalid credentials") as any;

@@ -16,8 +16,6 @@ export const authMiddleware = async (
 
     const decoded = verifyAccessToken(token);
 
-    console.log("decoded user", decoded);
-
     if (typeof decoded === "string" || !decoded.id) {
       res.status(401).json({ error: "Unauthorized. Invalid token." });
       return;

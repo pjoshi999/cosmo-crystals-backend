@@ -10,6 +10,7 @@ import {
   resetPassword,
 } from "../controllers/authController";
 import { adminOnly, authMiddleware } from "../middlewares/authMiddleware";
+import { googleAuth, googleSignup } from "../controllers/googleAuthController";
 
 const router = express.Router();
 
@@ -19,6 +20,9 @@ router.post("/refresh", refreshAccessToken);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.post("/logout", authMiddleware, logout);
+
+router.post("/google", googleAuth);
+router.post("/google/signup", googleSignup);
 
 // Protect this route → Only logged-in users can access
 // router.get("/profile", authMiddleware, (req: Request, res: Response) => {

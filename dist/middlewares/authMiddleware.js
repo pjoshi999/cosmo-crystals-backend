@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
             return;
         }
         const decoded = (0, jwt_1.verifyAccessToken)(token);
-        console.log("decoded user", decoded);
+
         if (typeof decoded === "string" || !decoded.id) {
             res.status(401).json({ error: "Unauthorized. Invalid token." });
             return;
