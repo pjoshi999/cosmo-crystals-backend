@@ -24,7 +24,6 @@ const registerUserService = async (name, email, password) => {
         },
         select: { id: true, name: true, email: true, role: true },
     });
-    console.log(newUser);
     const accessToken = (0, jwt_1.generateAccessToken)(newUser.id);
     const refreshToken = await (0, jwt_1.generateRefreshToken)(newUser.id);
     return { newUser, accessToken, refreshToken };
@@ -43,7 +42,6 @@ const loginUserService = async (email, password) => {
         error.status = 404;
         throw error;
     }
-    console.log("user", user);
     const accessToken = (0, jwt_1.generateAccessToken)(user.id);
     const refreshToken = await (0, jwt_1.generateRefreshToken)(user.id);
     return { user, accessToken, refreshToken };

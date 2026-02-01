@@ -11,15 +11,22 @@ import subCategoryRoutes from "./routes/subCategoryRoutes";
 import authRoutes from "./routes/authRoutes";
 import profileRoutes from "./routes/profileRoutes";
 import userRoutes from "./routes/userRoutes";
+import orderRoutes from "./routes/orderRoutes";
+import { setupBullBoard } from "./config/bullBoard";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import "./workers/emailWorker";
 
 dotenv.config();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 10000;
 
 const app = express();
+
+const serverAdapter = setupBullBoard();
+
+app.use("/admin/queues", serverAdapter.getRouter());
 
 app.use(express.json());
 app.use(helmet());
@@ -34,7 +41,7 @@ app.use(
     windowMs: 15 * 60 * 1000,
     max: 200,
     message: "Too many requests, please try again later.",
-  })
+  }),
 ); // 15 mins
 
 app.use("/assets", express.static("assets"));
@@ -49,6 +56,9 @@ app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/subcategory", subCategoryRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/orders", orderRoutes);
+
+// Initialize worker
 
 app.get("/", (_req, res) => {
   res.json({ message: "✅ Server is running" });

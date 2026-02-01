@@ -10,7 +10,7 @@ import {
 // Create a product
 export const createProduct = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const product = await createProductService(req.body);
@@ -41,7 +41,7 @@ export const createProduct = async (
 // Get all products
 export const getAllProducts = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -62,10 +62,8 @@ export const getAllProducts = async (
       category,
       minPrice,
       maxPrice,
-      search
+      search,
     );
-
-    console.log(products, totalProducts);
 
     res.status(200).json({
       message: "Products fetched successfully",
@@ -84,7 +82,7 @@ export const getAllProducts = async (
 
 export const getProductById = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { id } = req.params;
@@ -95,7 +93,6 @@ export const getProductById = async (
     }
 
     const product = await getProductByIdService(id);
-    console.log("check");
 
     if (!product) {
       res.status(404).json({ message: "Product not found" });
@@ -111,7 +108,7 @@ export const getProductById = async (
 
 export const updateProduct = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const updatedProduct = await updateProductService(req.params.id, req.body);
@@ -129,7 +126,7 @@ export const updateProduct = async (
 
 export const deleteProduct = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const product = await deleteProductService(req.params.id);

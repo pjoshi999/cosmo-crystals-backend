@@ -13,14 +13,10 @@ export const generateAccessToken = (userId: string) => {
 };
 
 export const generateRefreshToken = async (userId: string) => {
-  console.log("userId", userId);
-
   const refreshToken = jwt.sign({ userId }, REFRESH_SECRET, {
     expiresIn: "15d",
   });
  
-  console.log("refresh", refreshToken);
-
   await prisma.session.create({
     data: {
       userId,
@@ -43,17 +39,12 @@ export const verifyRefreshToken = async (refreshToken: string) => {
       throw new Error("Invalid token payload");
     }
 
-    console.log("decoded", decoded);
-    console.log("refresh token", refreshToken);
-
     const storedSession = await prisma.session.findFirst({
       where: {
         userId: decoded.userId,
         token: refreshToken,
       },
     });
-
-    console.log("stored Session", storedSession);
 
     if (!storedSession) {
       throw new Error("Invalid or expired refresh token");

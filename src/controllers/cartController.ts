@@ -18,7 +18,7 @@ export const addToCart = async (req: Request, res: Response): Promise<void> => {
 
 export const getCartItems = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const cartItems = await getCartItemsService(req.user?.id);
@@ -30,11 +30,10 @@ export const getCartItems = async (
 
 export const updateCart = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { productId, quantity } = req.body;
-    console.log(req.user?.id);
     const cartItem = await updateCartService(req.user?.id, productId, quantity);
     res.status(200).json(cartItem);
   } catch (error: any) {
@@ -44,10 +43,9 @@ export const updateCart = async (
 
 export const removeFromCart = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
-    console.log(req.params);
     const { id } = req.params;
 
     if (!id) {

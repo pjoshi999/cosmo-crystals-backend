@@ -1,16 +1,12 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendResetEmail = async (email: string, resetLink: string) => {
-  const info = await transporter.sendMail({
-    from: `"Reset your Email" <${process.env.SMTP_USER}>`,
+  const { data, error } = await resend.emails.send({
+    from: "Cosmo Crystals <noreply@cosmocrystals.com>",
     to: email,
+    cc: "cosmocrystalsshop@gmail.com",
     subject: "Reset your password",
     html: `<!DOCTYPE html>
             <html lang="en">
@@ -526,7 +522,7 @@ export const sendResetEmail = async (email: string, resetLink: string) => {
                       <a href="#" class="social-icon">t</a>
                     </div>
                     <div class="footer-divider"></div>
-                    <p class="footer-text">© 2025 Cosmo Crystals. All rights reserved.</p>
+                    <p class="footer-text">© ${new Date().getFullYear()} Cosmo Crystals. All rights reserved.</p>
                     <p class="footer-text">123 Spiritual Way, Crystal City, Universe 12345</p>
                     <p class="footer-text">Bringing cosmic energy to earthly beings since 2010</p>
                   </div>
@@ -536,5 +532,105 @@ export const sendResetEmail = async (email: string, resetLink: string) => {
             </html>`,
   });
 
-  console.log("Message sent: %s", info);
+  if (error) {
+    console.error("Resend error sending reset email:", error);
+    throw error;
+  }
+};
+
+export const sendOrderEmail = async (
+  email: string,
+  orderDetails: {
+    items: any[];
+    total: number;
+    name: string;
+    shippingAddress: any;
+    orderId?: string;
+  },
+) => {
+  const { items, total, name, shippingAddress } = orderDetails;
+
+  const itemsHtml = items
+    .map(
+      (item: any) => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        <div style="font-weight: bold;">${item.name || "Product"}</div>
+        <div style="font-size: 12px; color: #888;">Qty: ${item.quantity}</div>
+      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
+        $${(item.price || 0).toFixed(2)}
+      </td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  const addressHtml = `
+    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+      <h3 style="margin-top: 0; color: #555;">Shipping Address</h3>
+      <p style="margin: 0; color: #666;">
+        ${shippingAddress.street || ""}<br>
+        ${shippingAddress.city || ""}, ${shippingAddress.state || ""} ${
+          shippingAddress.postalCode || ""
+        }<br>
+        ${shippingAddress.country || ""}
+      </p>
+    </div>
+  `;
+
+  const { data, error } = await resend.emails.send({
+    from: "Cosmo Crystals <noreply@cosmocrystals.com>",
+    to: email,
+    cc: "cosmocrystalsshop@gmail.com",
+    subject: "Order Confirmation - Cosmo Crystals",
+    html: `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Order Confirmation - Cosmo Crystals</title>
+              <style>
+                body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f7f7f7; }
+                .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); }
+                .header { background: linear-gradient(135deg, #E63946, #a71d29); padding: 30px; text-align: center; color: white; }
+                .content { padding: 40px; }
+                .order-summary { margin-top: 30px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+                .order-total { background-color: #f0f0f0; padding: 15px; text-align: right; font-weight: bold; font-size: 18px; }
+              </style>
+            </head>
+            <body>
+              <div class="email-container">
+                <div class="header">
+                  <h1 style="margin: 0;">Order Confirmed!</h1>
+                  <p style="margin: 10px 0 0; opacity: 0.9;">Thank you for your purchase, ${name}</p>
+                </div>
+                
+                <div class="content">
+                  <p>Your order has been received and is being processed. We'll send you another email when it ships.</p>
+                  
+                  ${addressHtml}
+                  
+                  <div class="order-summary">
+                    <table style="width: 100%; border-collapse: collapse;">
+                      ${itemsHtml}
+                    </table>
+                    <div class="order-total">
+                      Total: $${total.toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div style="text-align: center; margin-top: 40px; color: #888; font-size: 12px;">
+                    <p>© ${new Date().getFullYear()} Cosmo Crystals. All rights reserved.</p>
+                  </div>
+                </div>
+              </div>
+            </body>
+            </html>`,
+  });
+
+  if (error) {
+    console.error("Resend error sending order email:", error);
+    throw error;
+  }
 };

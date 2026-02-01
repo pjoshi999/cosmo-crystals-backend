@@ -26,7 +26,6 @@ exports.getCartItems = getCartItems;
 const updateCart = async (req, res) => {
     try {
         const { productId, quantity } = req.body;
-        console.log(req.user?.id);
         const cartItem = await (0, cartServices_1.updateCartService)(req.user?.id, productId, quantity);
         res.status(200).json(cartItem);
     }
@@ -37,7 +36,6 @@ const updateCart = async (req, res) => {
 exports.updateCart = updateCart;
 const removeFromCart = async (req, res) => {
     try {
-        console.log(req.params);
         const { id } = req.params;
         if (!id) {
             res.status(400).json({ error: "Product ID is required" });

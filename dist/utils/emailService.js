@@ -530,7 +530,7 @@ const sendResetEmail = async (email, resetLink) => {
                       <a href="#" class="social-icon">t</a>
                     </div>
                     <div class="footer-divider"></div>
-                    <p class="footer-text">© 2025 Cosmo Crystals. All rights reserved.</p>
+                    <p class="footer-text">© ${new Date().getFullYear()} Cosmo Crystals. All rights reserved.</p>
                     <p class="footer-text">123 Spiritual Way, Crystal City, Universe 12345</p>
                     <p class="footer-text">Bringing cosmic energy to earthly beings since 2010</p>
                   </div>

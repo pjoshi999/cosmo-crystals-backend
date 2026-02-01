@@ -9,7 +9,6 @@ const categoryValidator_1 = require("../validators/categoryValidator");
 const createCategoryService = async (data) => {
     const validatedData = categoryValidator_1.categorySchema.safeParse(data);
     if (!validatedData.success) {
-        console.log(validatedData.error);
         const errors = validatedData.error.format();
         throw new Error(JSON.stringify(errors));
     }

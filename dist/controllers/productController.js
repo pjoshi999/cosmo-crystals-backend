@@ -44,7 +44,6 @@ const getAllProducts = async (req, res) => {
             : undefined;
         const search = req.query.search;
         const { products, totalProducts } = await (0, productServices_1.getProductsService)(page, limit, category, minPrice, maxPrice, search);
-        console.log(products, totalProducts);
         res.status(200).json({
             message: "Products fetched successfully",
             products,
@@ -69,7 +68,6 @@ const getProductById = async (req, res) => {
             return;
         }
         const product = await (0, productServices_1.getProductByIdService)(id);
-        console.log("check");
         if (!product) {
             res.status(404).json({ message: "Product not found" });
             return;

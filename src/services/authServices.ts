@@ -27,8 +27,6 @@ export const registerUserService = async (
     select: { id: true, name: true, email: true, role: true },
   });
 
-  console.log(newUser);
-
   const accessToken = generateAccessToken(newUser.id);
   const refreshToken = await generateRefreshToken(newUser.id);
   return { newUser, accessToken, refreshToken };
@@ -57,8 +55,6 @@ export const loginUserService = async (email: string, password: string) => {
     error.status = 404;
     throw error;
   }
-
-  console.log("user", user);
 
   const accessToken = generateAccessToken(user.id);
   const refreshToken = await generateRefreshToken(user.id);

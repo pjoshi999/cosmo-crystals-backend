@@ -20,7 +20,7 @@ import { hashPassword } from "../utils/passwordHash";
 // @access  Public
 export const registerUser = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const parsedData = signUpSchema.safeParse(req.body);
@@ -35,7 +35,7 @@ export const registerUser = async (
     const { newUser, accessToken, refreshToken } = await registerUserService(
       name,
       email,
-      password
+      password,
     );
 
     res.status(200).json({
@@ -74,7 +74,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = parsedData.data;
     const { accessToken, refreshToken } = await loginUserService(
       email,
-      password
+      password,
     );
     res.status(200).json({
       message: "Login successfully",
@@ -91,7 +91,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 // @access  Public
 export const refreshAccessToken = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { refreshToken } = req.body;
@@ -101,8 +101,6 @@ export const refreshAccessToken = async (
     }
 
     const decoded = await verifyRefreshToken(refreshToken);
-
-    console.log("check", decoded);
 
     if (!decoded || typeof decoded !== "object" || !decoded.userId) {
       res.status(401).json({ error: "Invalid refresh token" });
@@ -136,7 +134,7 @@ export const refreshAccessToken = async (
 // @access  Public
 export const forgotPassword = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { email } = req.body;
@@ -168,7 +166,7 @@ export const forgotPassword = async (
 // @access  Public
 export const resetPassword = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const { resetToken, newPassword } = req.body;

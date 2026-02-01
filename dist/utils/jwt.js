@@ -16,11 +16,9 @@ const generateAccessToken = (userId) => {
 };
 exports.generateAccessToken = generateAccessToken;
 const generateRefreshToken = async (userId) => {
-    console.log("userId", userId);
     const refreshToken = jsonwebtoken_1.default.sign({ userId }, REFRESH_SECRET, {
         expiresIn: "15d",
     });
-    console.log("refresh", refreshToken);
     await database_1.default.session.create({
         data: {
             userId,
@@ -41,15 +39,12 @@ const verifyRefreshToken = async (refreshToken) => {
         if (typeof decoded === "string") {
             throw new Error("Invalid token payload");
         }
-        console.log("decoded", decoded);
-        console.log("refresh token", refreshToken);
         const storedSession = await database_1.default.session.findFirst({
             where: {
                 userId: decoded.userId,
                 token: refreshToken,
             },
         });
-        console.log("stored Session", storedSession);
         if (!storedSession) {
             throw new Error("Invalid or expired refresh token");
         }

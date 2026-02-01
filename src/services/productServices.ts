@@ -115,8 +115,6 @@ export const getProductsService = async (
     ];
   }
 
-  console.log(filters);
-
   const products = await prisma.product.findMany({
     where: filters,
     include: {
