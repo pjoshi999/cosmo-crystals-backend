@@ -36,7 +36,7 @@ export const sendResetEmail = async (email: string, resetLink: string) => {
                 
                 /* Header styles with luxury feel */
                 .header {
-                  background: linear-gradient(135deg, #E63946, #a71d29);
+                  background: #b23a48;
                   padding: 0;
                   position: relative;
                   overflow: hidden;
