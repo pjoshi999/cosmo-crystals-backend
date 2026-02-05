@@ -57,10 +57,13 @@ export const placeOrder = async (
       email: userDetails.email,
       orderDetails: {
         name: customerName,
+        email: userDetails.email,
+        phone: userDetails.phone || shippingAddress.phone,
         items: enrichedProducts,
         total: totalAmount,
         shippingAddress: shippingAddress || {},
         orderId: "temp-" + Date.now(), // Placeholder ID
+        userDetails: userDetails, // Pass all user details just in case
       },
     });
 

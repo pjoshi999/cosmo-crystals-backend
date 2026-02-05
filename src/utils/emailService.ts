@@ -544,11 +544,13 @@ export const sendOrderEmail = async (
     items: any[];
     total: number;
     name: string;
+    email?: string;
+    phone?: string;
     shippingAddress: any;
     orderId?: string;
   },
 ) => {
-  const { items, total, name, shippingAddress } = orderDetails;
+  const { items, total, name, shippingAddress, phone } = orderDetails;
 
   const itemsHtml = items
     .map(
@@ -567,10 +569,17 @@ export const sendOrderEmail = async (
     .join("");
 
   const addressHtml = `
-    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
-      <h3 style="margin-top: 0; color: #555;">Shipping Address</h3>
-      <p style="margin: 0; color: #666;">
-        ${shippingAddress.street || ""}<br>
+    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border: 1px solid #eee;">
+      <h3 style="margin-top: 0; color: #b23a48; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Customer Information</h3>
+      <p style="margin: 5px 0; color: #444;"><strong>Name:</strong> ${name}</p>
+      <p style="margin: 5px 0; color: #444;"><strong>Email:</strong> ${email}</p>
+      <p style="margin: 5px 0; color: #444;"><strong>Phone:</strong> ${phone || shippingAddress.phone || "N/A"}</p>
+      
+      <h3 style="margin-top: 20px; color: #b23a48; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Shipping Address</h3>
+      <p style="margin: 10px 0; color: #444; line-height: 1.5;">
+        ${shippingAddress.address1 || shippingAddress.street || ""}${
+          shippingAddress.address2 ? `, ${shippingAddress.address2}` : ""
+        }<br>
         ${shippingAddress.city || ""}, ${shippingAddress.state || ""} ${
           shippingAddress.postalCode || ""
         }<br>
